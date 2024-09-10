@@ -25,6 +25,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+
     Column (modifier = Modifier
         .fillMaxSize() // Make the column fill the entire screen
         .background(color = Color.Black), // Set the background color to black
@@ -82,6 +83,13 @@ fun LoginScreen(viewModel: LoginViewModel) {
                 viewModel.login(username, password) { token ->
                     if (token != null) {
                        println("Token: $token")
+                        viewModel.fetchProducts(token) { products ->
+                            if (products != null) {
+                                println("Products: $products")
+                            } else {
+                                println("Error fetching products.")
+                            }
+                        }
                     } else {
                         println("Login failed.")
                     }
