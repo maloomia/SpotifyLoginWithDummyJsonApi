@@ -1,5 +1,6 @@
 package com.example.loginwithapi
 
+import android.content.Context
 import androidx.annotation.OptIn
 import androidx.media3.common.util.Log
 import androidx.media3.common.util.UnstableApi
@@ -16,14 +17,15 @@ import java.io.IOException
 import okhttp3.MediaType.Companion.toMediaType
 
 
-class AccessingApi {
+
+class AccessingApi (private val context: Context) {
 
     private val client = OkHttpClient()
     private val gson = Gson()
 
 
     @OptIn(UnstableApi::class)
-    suspend fun login(username: String, password: String) {
+    suspend fun login(username: String, password: String): String? {
         val json = gson.toJson(LoginRequest(username, password))
 
         val requestBody = json.toRequestBody("application/json; charset=utf-8".toMediaType())
@@ -41,23 +43,26 @@ class AccessingApi {
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
                         val loginResponse = gson.fromJson(responseBody, LoginResponse::class.java)
-
-                         println("token is: ${loginResponse.token}")
+                        // Log successful login
+                        println("Login successful, token: ${loginResponse.token}")
+                        return@withContext loginResponse.token // Return the token on success
                     } else {
                         Log.e("AccessingApi", "Login failed: ${response.code}")
-                        null // Indicate failure
+                        return@withContext null // Indicate failure
                     }
                 }
             } catch (e: Exception) {
                 Log.e("AccessingApi", "Error during login: ${e.message}")
-                null // Indicate failure
+                return@withContext null // Indicate failure in case of an exception
             }
         }}
 
 
 
+
+
     suspend fun fetchProducts(token: String): List<JsonObject>? {
-        println("Fetching products with token: $token")
+
 
         val request = Request.Builder()
             .url("https://dummyjson.com/auth/products")
@@ -73,7 +78,7 @@ class AccessingApi {
 
                     if (response.isSuccessful) {
                         val responseBody = response.body?.string()
-                        println("Response Body: $responseBody")
+
 
 
                         val jsonObject = JsonParser.parseString(responseBody).asJsonObject
@@ -85,12 +90,12 @@ class AccessingApi {
                         productsJsonArray.map { it.asJsonObject }
                     } else {
                         println("Fetch products failed: ${response.code}")
-                        null // Indicate failure
+                        return@withContext null // Indicate failure
                     }
                 }
             } catch (e: Exception) {
                 println("Error during fetch: ${e.message}")
-                null // Indicate failure
+                return@withContext null // Indicate failure
             }
 
 

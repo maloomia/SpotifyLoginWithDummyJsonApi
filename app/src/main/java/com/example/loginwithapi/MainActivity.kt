@@ -38,7 +38,10 @@ class MainActivity : ComponentActivity() {
     private lateinit var viewModel: LoginViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+        val accessingApi = AccessingApi(this)
+        val userRepository = UserRepository(accessingApi, this)
+        viewModel = LoginViewModel(userRepository)
+
         enableEdgeToEdge()
         setContent {
             LoginWithApiTheme {

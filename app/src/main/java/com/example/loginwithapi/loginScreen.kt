@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 fun LoginScreen(viewModel: LoginViewModel) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var loading by remember { mutableStateOf(false) }
 
 
     Column (modifier = Modifier
@@ -80,21 +81,28 @@ fun LoginScreen(viewModel: LoginViewModel) {
 
         androidx.compose.material3.Button(
             onClick = {
-                viewModel.login(username, password) { token ->
-                    if (token != null) {
-                       println("Token: $token")
-                        viewModel.fetchProducts(token) { products ->
-                            if (products != null) {
-                                println("Products: $products")
-                            } else {
-                                println("Error fetching products.")
+                if (username.isNotBlank() && password.isNotBlank()) {
+                    loading = true  // Start loading
+                    viewModel.login(username, password) { token ->
+                        loading = false  // Stop loading
+
+                        if (token != null) {
+                            viewModel.fetchProducts(token) { products ->
+                                if (products != null) {
+                                    println("Products: $products")
+                                    // Handle showing products to the user
+                                } else {
+                                    println("Error fetching products.")
+                                }
                             }
+                        } else {
+                            println("Login failed.")
                         }
-                    } else {
-                        println("Login failed.")
                     }
+                } else {
+                    println("Username and password cannot be empty.")
                 }
-             },
+            },
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(29, 218, 99) // Change this to your desired color
             ),
@@ -109,36 +117,15 @@ fun LoginScreen(viewModel: LoginViewModel) {
             )
         }
 
-
-    }
-
-
-
-}
-
-/*
-Column {
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") }
-        )
-        TextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            visualTransformation = PasswordVisualTransformation()
-        )
-        Button(onClick = {
-            viewModel.login(username, password) { token ->
-                if (token != null) {
-                    println("Token: $token")
-                } else {
-                    println("Login failed.")
-                }
-            }
-        }) {
-            Text("Login")
+        // Show loading indicator when loading is true
+        if (loading) {
+            CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
         }
     }
- */
+}
+
+
+
+
+
+
