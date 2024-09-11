@@ -19,7 +19,21 @@ class UserRepository (private val api: AccessingApi, private val context: Contex
         return api.login(username, password)
     }
 
-    suspend fun fetchProducts(token: String): List<JsonObject>? {
-        return api.fetchProducts(token)
+    suspend fun fetchProducts(token: String): List<Product> {
+        val jsonResponse: List<JsonObject>? = api.fetchProducts(token)
+
+        return jsonResponse?.map { jsonObject ->
+            Product(
+                id = jsonObject.get("id").asString,
+                title = jsonObject.get("title").asString // Extract title from JsonObject
+            )
+        } ?: emptyList()
     }
+
+    suspend fun deleteProduct(token: String, productId: String): Boolean {
+
+        return api.deleteProduct(token, productId)
+    }
+
+
 }

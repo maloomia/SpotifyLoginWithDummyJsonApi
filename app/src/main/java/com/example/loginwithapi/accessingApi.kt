@@ -102,7 +102,32 @@ class AccessingApi (private val context: Context) {
 
 
     }
-        }}
+        }
+
+    @OptIn(UnstableApi::class)
+    suspend fun deleteProduct(token: String, productId: String): Boolean {
+        val request = Request.Builder()
+            .url("https://dummyjson.com/products/$productId") // Adjust the URL as needed
+            .addHeader("Authorization", "Bearer $token")
+            .delete() // Specify the DELETE method
+            .build()
+
+        return withContext(Dispatchers.IO) {
+            try {
+                Log.d("DeleteProductAPI", "Sending delete request for product ID: $productId")
+                client.newCall(request).execute().use { response ->
+                    Log.d("DeleteProductAPI", "Response code: ${response.code}")
+                    response.isSuccessful // Returns true if the response indicates success
+                }
+            } catch (e: Exception) {
+                Log.e("AccessingApi", "Error during delete: ${e.message}")
+                false // Indicate failure
+            }
+        }
+    }
+
+
+}
 
 
 

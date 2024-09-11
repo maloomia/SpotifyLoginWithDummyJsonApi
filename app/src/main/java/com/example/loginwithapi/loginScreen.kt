@@ -16,12 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun LoginScreen(viewModel: LoginViewModel, navController: NavHostController) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
@@ -87,14 +87,8 @@ fun LoginScreen(viewModel: LoginViewModel) {
                         loading = false  // Stop loading
 
                         if (token != null) {
-                            viewModel.fetchProducts(token) { products ->
-                                if (products != null) {
-                                    println("Products: $products")
-                                    // Handle showing products to the user
-                                } else {
-                                    println("Error fetching products.")
-                                }
-                            }
+                            viewModel.fetchProducts() // Fetch products without passing the token
+                            navController.navigate("products")
                         } else {
                             println("Login failed.")
                         }
